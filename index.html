@@ -50,7 +50,7 @@
   width: 0; height: 0;
   border-left: 28px solid transparent;
   border-right: 28px solid transparent;
-  border-top: 36px solid black;  /* ← Только эта строка рисует стрелку вверх! */
+  border-top: 36px solid black;
   z-index: 3;
 }
     button {
@@ -109,6 +109,8 @@
   </div>
   <button id="spin">КРУТИТЬ</button>
   <div id="result-popup"></div>
+  <!-- МУЗЫКА: -->
+  <audio id="myMusic" src="music.mp3"></audio>
   <script>
     // Список вариантов
     const options = [
@@ -164,8 +166,18 @@
       setTimeout(() => { popup.style.display = 'none'; }, 1850);
     }
 
+    // МУЗЫКА
+    function playMusic() {
+      const music = document.getElementById('myMusic');
+      if (music.paused) {
+        music.currentTime = 0;
+        music.play();
+      }
+    }
+
     function spin() {
       if (spinning) return;
+      playMusic(); // Запуск музыки при нажатии кнопки!
       spinning = true;
       const n = options.length;
       const selected = Math.floor(Math.random() * n);
