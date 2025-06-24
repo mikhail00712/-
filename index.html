@@ -109,7 +109,8 @@
   </div>
   <button id="spin">КРУТИТЬ</button>
   <div id="result-popup"></div>
-  <audio id="player" src="MusicMP3.mp3"></audio>
+  <!-- МУЗЫКА: -->
+  <audio id="myMusic" src="music.mp3"></audio>
   <script>
     // Список вариантов
     const options = [
@@ -118,7 +119,6 @@
     const colors = ["#ffecec", "#e6f6ff", "#eaffea", "#f5eaff", "#fffada"];
     const wheel = document.getElementById("wheel");
     const ctx = wheel.getContext("2d");
-    const audio = document.getElementById("player");
 
     function drawWheel(angle = 0) {
       const size = Math.min(wheel.width, wheel.height);
@@ -166,8 +166,18 @@
       setTimeout(() => { popup.style.display = 'none'; }, 1850);
     }
 
+    // МУЗЫКА
+    function playMusic() {
+      const music = document.getElementById('myMusic');
+      if (music.paused) {
+        music.currentTime = 0;
+        music.play();
+      }
+    }
+
     function spin() {
       if (spinning) return;
+      playMusic(); // Запуск музыки при нажатии кнопки!
       spinning = true;
       const n = options.length;
       const selected = Math.floor(Math.random() * n);
@@ -180,10 +190,6 @@
       const duration = 4000;
       const startAngle = currentAngle;
       const endAngle = currentAngle + finalAngle;
-
-      // Запуск музыки (сброс в начало)
-      audio.currentTime = 0;
-      audio.play();
 
       let start = null;
       function animate(ts) {
@@ -203,9 +209,9 @@
           currentAngle = endAngle % (2 * Math.PI);
           drawWheel(currentAngle);
 
-          // Исправленный расчет сектора (строго по направлению стрелки вниз)
-          // Учитываем, что "0" у канваса — это вправо, а у нас стрелка снизу (на π/2)
-          let pointerAngle = (3 * Math.PI / 2 - currentAngle + 2*Math.PI) % (2*Math.PI);
+          // ВЫВОД результата! СТРОГО ПО СТРЕЛКЕ СНИЗУ!
+          // Стрелка снизу — это угол 3π/2 (270°). Считаем сегмент по этому углу!
+          let pointerAngle = (3 * Math.PI / 2 - currentAngle + 2 * Math.PI) % (2 * Math.PI);
           let landed = Math.floor(pointerAngle / sliceAngle) % n;
           showResult(options[landed]);
 
