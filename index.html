@@ -46,11 +46,12 @@
       position: absolute;
       left: 50%;
       bottom: -36px;
-      transform: translateX(-50%) rotate(0deg);
+      transform: translateX(-50%) rotate(180deg); /* Вверх! */
       width: 0; height: 0;
       border-left: 28px solid transparent;
       border-right: 28px solid transparent;
-      border-top: 36px solid #ef3232;
+      border-bottom: 36px solid black; /* Черная стрелка, border-bottom! */
+      border-top: none;
       z-index: 3;
     }
     button {
@@ -68,15 +69,36 @@
       transition: background 0.2s;
     }
     button:active { background: #444; }
+    #result-popup {
+      display: none;
+      position: fixed;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      background: #222;
+      color: #fff;
+      padding: 2rem 2.5rem;
+      border-radius: 22px;
+      font-size: 2.2rem;
+      font-weight: bold;
+      box-shadow: 0 8px 32px #0006;
+      z-index: 100;
+      opacity: 0.98;
+      animation: popup-in 0.24s cubic-bezier(.5,2,.1,1) forwards;
+    }
+    @keyframes popup-in {
+      from { opacity: 0; transform: translate(-50%, -60%) scale(0.9);}
+      to   { opacity: 0.98; transform: translate(-50%, -50%) scale(1);}
+    }
     @media (max-width: 500px) {
       h1 { font-size: 1.5rem; }
       button { font-size: 1rem; }
       #arrow {
         border-left: 14px solid transparent;
         border-right: 14px solid transparent;
-        border-top: 18px solid #ef3232;
+        border-bottom: 18px solid black;
         bottom: -18px;
       }
+      #result-popup { font-size: 1.2rem; padding: 1.2rem 1.1rem;}
     }
   </style>
 </head>
@@ -87,6 +109,7 @@
     <div id="arrow"></div>
   </div>
   <button id="spin">КРУТИТЬ</button>
+  <div id="result-popup"></div>
   <script>
     // Список вариантов
     const options = [
@@ -96,7 +119,6 @@
     const wheel = document.getElementById("wheel");
     const ctx = wheel.getContext("2d");
 
-    // --- Отрисовка колеса ---
     function drawWheel(angle = 0) {
       const size = Math.min(wheel.width, wheel.height);
       const n = options.length;
@@ -127,7 +149,6 @@
       }
     }
 
-    // --- Адаптивность ---
     function resize() {
       const w = Math.min(window.innerWidth, 420);
       wheel.width = w;
@@ -137,24 +158,28 @@
 
     let spinning = false, currentAngle = 0, targetAngle = 0;
 
-    // --- Анимация "рулетка" ---
+    function showResult(text) {
+      const popup = document.getElementById('result-popup');
+      popup.textContent = text;
+      popup.style.display = 'block';
+      setTimeout(() => { popup.style.display = 'none'; }, 1850);
+    }
+
     function spin() {
       if (spinning) return;
       spinning = true;
       const n = options.length;
       const selected = Math.floor(Math.random() * n);
 
-      // Настраиваем "длительность" и "кол-во оборотов"
+      // Крутая рулетка — много оборотов + мягкое замедление
       const sliceAngle = 2 * Math.PI / n;
       const baseRotations = 6 + Math.random() * 2; // 6-8 оборотов
       const finalAngle = 2 * Math.PI * baseRotations + (n - selected) * sliceAngle + (Math.random() - 0.5) * (sliceAngle * 0.6);
 
-      // Продолжительность анимации (4 сек)
       const duration = 4000;
       const startAngle = currentAngle;
       const endAngle = currentAngle + finalAngle;
 
-      // Замедление по экспоненте
       let start = null;
       function animate(ts) {
         if (!start) start = ts;
@@ -172,6 +197,11 @@
         } else {
           currentAngle = endAngle % (2 * Math.PI);
           drawWheel(currentAngle);
+
+          // ВЫВОД результата!
+          const landed = (n - Math.floor((currentAngle % (2 * Math.PI)) / sliceAngle)) % n;
+          showResult(options[landed]);
+
           spinning = false;
         }
       }
