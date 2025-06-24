@@ -7,7 +7,6 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon.png">
   <meta name="theme-color" content="#f5f5f5">
-  <!-- Для webapp на iPhone -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <style>
@@ -31,7 +30,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: auto;
     }
     #wheel {
       width: 92vw;
@@ -47,15 +45,12 @@
     #arrow {
       position: absolute;
       left: 50%;
-      transform: translateX(-50%) rotate(0deg);
-      width: 0;
-      height: 0;
-      border-left: 26px solid transparent;
-      border-right: 26px solid transparent;
-      border-top: 0 solid transparent;
-      border-bottom: 34px solid #ef3232;
-      top: auto;
-      bottom: -32px;
+      top: -34px;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 28px solid transparent;
+      border-right: 28px solid transparent;
+      border-bottom: 36px solid #ef3232;
       z-index: 3;
     }
     button {
@@ -77,10 +72,10 @@
       h1 { font-size: 1.5rem; }
       button { font-size: 1rem; }
       #arrow {
-        border-left: 13px solid transparent;
-        border-right: 13px solid transparent;
+        border-left: 14px solid transparent;
+        border-right: 14px solid transparent;
         border-bottom: 18px solid #ef3232;
-        bottom: -16px;
+        top: -16px;
       }
     }
   </style>
@@ -98,10 +93,10 @@
       "Окрошка", "Роллы", "Хинкали", "Тайская", "Мак"
     ];
     const colors = ["#ffecec", "#e6f6ff", "#eaffea", "#f5eaff", "#fffada"];
-
     const wheel = document.getElementById("wheel");
     const ctx = wheel.getContext("2d");
 
+    // --- Отрисовка колеса ---
     function drawWheel(angle = 0) {
       const size = Math.min(wheel.width, wheel.height);
       const n = options.length;
@@ -132,7 +127,7 @@
       }
     }
 
-    // Адаптивность
+    // --- Адаптивность ---
     function resize() {
       const w = Math.min(window.innerWidth, 420);
       wheel.width = w;
@@ -142,37 +137,41 @@
 
     let spinning = false, currentAngle = 0, targetAngle = 0;
 
+    // --- Новая анимация: крутится как рулетка ---
     function spin() {
       if (spinning) return;
       spinning = true;
       const n = options.length;
       const selected = Math.floor(Math.random() * n);
 
-      // --- Крутая рулеточная анимация ---
-      // Много оборотов, замедление по синусу, финал попадает на нужный сектор
+      // Настраиваем "длительность" и "кол-во оборотов" чтобы выглядело естественно
       const sliceAngle = 2 * Math.PI / n;
-      const randomExtra = Math.random() * sliceAngle * 0.8;
-      const minSpins = 5; // оборотов
-      const finalAngle = (n - selected) * sliceAngle + randomExtra; // нужный сектор внизу (под стрелкой)
-      targetAngle = currentAngle + 2 * Math.PI * minSpins + finalAngle;
-      let start = null;
-      let duration = 3000 + Math.random()*500; // 3-3.5 секунды
+      const baseRotations = 6 + Math.random() * 2; // 6-8 оборотов
+      const finalAngle = 2 * Math.PI * baseRotations + (n - selected) * sliceAngle + (Math.random() - 0.5) * (sliceAngle * 0.6);
 
+      // Продолжительность анимации (4 сек)
+      const duration = 4000;
+      const startAngle = currentAngle;
+      const endAngle = currentAngle + finalAngle;
+
+      // Имитируем замедление по экспоненте
+      let start = null;
       function animate(ts) {
         if (!start) start = ts;
-        let elapsed = ts - start;
-        let t = Math.min(1, elapsed / duration);
+        const elapsed = ts - start;
+        let t = Math.min(elapsed / duration, 1);
 
-        // Замедление: easeOutQuart, красиво, затяжно
-        let ease = 1 - Math.pow(1-t, 4);
+        // Ease-out экспонента (замедление в конце)
+        t = 1 - Math.pow(1-t, 3.5);
 
-        currentAngle = currentAngle + (targetAngle - currentAngle) * ease;
+        currentAngle = startAngle + (endAngle - startAngle) * t;
         drawWheel(currentAngle);
 
-        if (t < 1) {
+        if (elapsed < duration) {
           requestAnimationFrame(animate);
         } else {
-          currentAngle = targetAngle % (2*Math.PI);
+          // Строго фиксируем на выбранный сегмент!
+          currentAngle = endAngle % (2 * Math.PI);
           drawWheel(currentAngle);
           spinning = false;
         }
