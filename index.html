@@ -206,17 +206,16 @@
         if (elapsed < duration) {
           requestAnimationFrame(animate);
         } else {
-          currentAngle = endAngle % (2 * Math.PI);
-          drawWheel(currentAngle);
+  currentAngle = endAngle % (2 * Math.PI);
+  drawWheel(currentAngle);
 
-          // ВЫВОД результата! СТРОГО ПО СТРЕЛКЕ СНИЗУ!
-          // Стрелка снизу — это угол 3π/2 (270°). Считаем сегмент по этому углу!
-          let pointerAngle = (3 * Math.PI / 2 - currentAngle + 2 * Math.PI) % (2 * Math.PI);
-          let landed = Math.floor(pointerAngle / sliceAngle) % n;
-          showResult(options[landed]);
+  // Стрелка снизу, смотрит вверх (точно по центру)
+  let pointerAngle = (Math.PI / 2 - currentAngle + 2 * Math.PI) % (2 * Math.PI);
+  let landed = Math.floor(pointerAngle / sliceAngle) % n;
+  showResult(options[landed]);
 
-          spinning = false;
-        }
+  spinning = false;
+}
       }
       requestAnimationFrame(animate);
     }
