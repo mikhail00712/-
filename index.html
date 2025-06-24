@@ -16,13 +16,13 @@
       font-family: Arial, sans-serif;
       text-align: center;
     }
-    h1 {
+    h1, h2 {
       font-size: 2.5rem;
       margin-top: 2vh;
       margin-bottom: 2vh;
       font-weight: bold;
     }
-    #wheelContainer {
+    #wheelContainer, #dessertWheelContainer {
       position: relative;
       width: 92vw;
       max-width: 420px;
@@ -31,7 +31,7 @@
       flex-direction: column;
       align-items: center;
     }
-    #wheel {
+    #wheel, #dessertWheel {
       width: 92vw;
       max-width: 420px;
       height: 92vw;
@@ -42,7 +42,7 @@
       display: block;
       margin: 0 auto;
     }
-    #arrow {
+    #arrow, #dessertArrow {
       position: absolute;
       left: 50%;
       bottom: -36px;
@@ -68,44 +68,27 @@
       transition: background 0.2s;
     }
     button:active { background: #444; }
-    #result-popup {
-      display: none;
-      position: fixed;
-      left: 50%; top: 50%;
-      transform: translate(-50%, -50%);
-      background: #222;
-      color: #fff;
-      padding: 2rem 2.5rem;
-      border-radius: 22px;
-      font-size: 2.2rem;
-      font-weight: bold;
-      box-shadow: 0 8px 32px #0006;
-      z-index: 100;
-      opacity: 0.98;
-      animation: popup-in 0.24s cubic-bezier(.5,2,.1,1) forwards;
-    }
-    /* Модальное окно с картинкой */
-    #result-modal {
+    #result-modal, #dessert-modal, #final-modal {
       display: none;
       position: fixed;
       left: 0; top: 0;
       width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.93);
+      background: rgba(0,0,0,0.95);
       z-index: 999;
       justify-content: center;
       align-items: center;
       animation: popup-in 0.28s cubic-bezier(.4,1.6,.1,1) forwards;
     }
-    #result-modal-inner {
+    #result-modal-inner, #dessert-modal-inner, #final-modal-inner {
       width: 100vw; height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
     }
-    #result-img {
+    #result-img, #dessert-img {
       max-width: 96vw;
-      max-height: 70vh;
+      max-height: 56vh;
       border-radius: 22px;
       box-shadow: 0 6px 38px #000b;
       background: #fff;
@@ -116,15 +99,7 @@
       transition: all 0.5s cubic-bezier(.7,1.6,.2,1.01);
       animation: img-in 0.44s cubic-bezier(.2,1.7,.2,1.01) forwards;
     }
-    @keyframes popup-in {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    @keyframes img-in {
-      from { opacity: 0; transform: scale(0.89) rotate(-18deg);}
-      to   { opacity: 1; transform: scale(1) rotate(0);}
-    }
-    #result-title {
+    #result-title, #dessert-title {
       color: #fff;
       font-size: 2.2rem;
       font-weight: bold;
@@ -137,59 +112,122 @@
       max-width: 90vw;
       overflow: hidden;
     }
-    #result-modal:active, #result-img:active { cursor: pointer; }
+    #final-main-img, #final-dessert-img {
+      max-width: 89vw;
+      max-height: 30vh;
+      border-radius: 16px;
+      box-shadow: 0 6px 38px #000b;
+      margin: 1.5vh auto 0 auto;
+      display: block;
+    }
+    #final-title {
+      color: #fff;
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 1.2vh;
+      margin-top: 0;
+      text-shadow: 0 2px 16px #000c;
+      letter-spacing: 1px;
+      background:rgba(40,40,40,.34);
+      border-radius: 12px;
+      padding: 0.4em 1.1em;
+      max-width: 93vw;
+    }
+    @keyframes popup-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes img-in {
+      from { opacity: 0; transform: scale(0.89) rotate(-18deg);}
+      to   { opacity: 1; transform: scale(1) rotate(0);}
+    }
+    #result-modal:active, #result-img:active,
+    #dessert-modal:active, #dessert-img:active,
+    #final-modal:active, #final-main-img:active, #final-dessert-img:active { cursor: pointer; }
     @media (max-width: 500px) {
-      h1 { font-size: 1.5rem; }
+      h1, h2 { font-size: 1.4rem; }
       button { font-size: 1rem; }
-      #arrow {
+      #arrow, #dessertArrow {
         border-left: 14px solid transparent;
         border-right: 14px solid transparent;
         border-top: 18px solid black;
         bottom: -18px;
       }
-      #result-title { font-size: 1.1rem; }
-      #result-img { max-width: 99vw; max-height: 55vw;}
+      #result-title, #dessert-title { font-size: 1.1rem; }
+      #result-img, #dessert-img { max-width: 99vw; max-height: 40vh;}
+      #final-title { font-size: 1rem; }
+      #final-main-img, #final-dessert-img { max-width: 97vw; max-height: 22vh; }
     }
   </style>
 </head>
 <body>
-  <h1>Что поесть сегодня?</h1>
+  <h1 id="mainTitle">Что поесть сегодня?</h1>
+  <!-- Основное колесо -->
   <div id="wheelContainer">
     <canvas id="wheel"></canvas>
     <div id="arrow"></div>
   </div>
   <button id="spin">КРУТИТЬ</button>
-  <div id="result-popup"></div>
-  <!-- МОДАЛКА С ФОТО -->
+
+  <!-- Второе колесо (ДЕСЕРТЫ) -->
+  <div id="dessertWheelContainer" style="display:none;">
+    <canvas id="dessertWheel"></canvas>
+    <div id="dessertArrow"></div>
+    <button id="spinDessert">КРУТИТЬ ДЕСЕРТ</button>
+  </div>
+
+  <!-- МОДАЛКИ С ФОТО -->
   <div id="result-modal">
     <div id="result-modal-inner">
       <img id="result-img" src="" alt="">
       <div id="result-title"></div>
     </div>
   </div>
+  <div id="dessert-modal">
+    <div id="dessert-modal-inner">
+      <img id="dessert-img" src="" alt="">
+      <div id="dessert-title"></div>
+    </div>
+  </div>
+  <div id="final-modal">
+    <div id="final-modal-inner">
+      <div id="final-title"></div>
+      <img id="final-main-img" src="" alt="">
+      <img id="final-dessert-img" src="" alt="">
+    </div>
+  </div>
+
   <!-- МУЗЫКА: -->
-  <audio id="myMusic" src="music.mp3"></audio>
+  <audio id="myMusic" src="music.mp3" autoplay loop></audio>
   <script>
-    // Список вариантов и соответствующих файлов
-    const options = [
-      "Окрошка", "Роллы", "Хинкали", "Тайская", "Мак"
-    ];
+    // Основное меню
+    const options = ["Окрошка", "Роллы", "Хинкали", "Тайская", "Мак"];
     const images = [
-      "okroshka.JPG", // "Окрошка"
-      "rolli.JPG",    // "Роллы"
-      "hinkali.JPG",  // "Хинкали"
-      "thailand .JPG",// "Тайская" (да, с пробелом в имени, у тебя так)
-      "mak.JPG"       // "Мак"
+      "okroshka.JPG", "rolli.JPG", "hinkali.JPG", "thailand .JPG", "mak.JPG"
     ];
     const colors = ["#ffecec", "#e6f6ff", "#eaffea", "#f5eaff", "#fffada"];
+
+    // ДЕСЕРТЫ
+    const dessertOptions = ["Торт", "Мороженое", "Мармелад", "Печенье"];
+    const dessertImages = [
+      "tort.JPG", "icecream .JPG", "marmelad .JPG", "cookies .JPG"
+    ];
+    const dessertColors = ["#fff8e8", "#eafffd", "#fff0fa", "#fff4e0"];
+
+    // Основные объекты
     const wheel = document.getElementById("wheel");
     const ctx = wheel.getContext("2d");
+    const dessertWheel = document.getElementById("dessertWheel");
+    const dessertCtx = dessertWheel.getContext("2d");
+    let currentAngle = 0, spinning = false;
+    let currentDessertAngle = 0, dessertSpinning = false;
+    let mainChoiceIdx = null, dessertChoiceIdx = null;
 
+    // Рисуем основное колесо
     function drawWheel(angle = 0) {
       const size = Math.min(wheel.width, wheel.height);
       const n = options.length;
       ctx.clearRect(0, 0, wheel.width, wheel.height);
-
       for(let i = 0; i < n; i++) {
         const start = angle + i * 2 * Math.PI / n;
         const end = angle + (i + 1) * 2 * Math.PI / n;
@@ -202,8 +240,6 @@
         ctx.strokeStyle = "#444";
         ctx.lineWidth = 3;
         ctx.stroke();
-
-        // Текст
         ctx.save();
         ctx.translate(size/2, size/2);
         ctx.rotate(start + Math.PI / n);
@@ -214,90 +250,187 @@
         ctx.restore();
       }
     }
-
+    // Рисуем колесо десертов
+    function drawDessertWheel(angle = 0) {
+      const size = Math.min(dessertWheel.width, dessertWheel.height);
+      const n = dessertOptions.length;
+      dessertCtx.clearRect(0, 0, dessertWheel.width, dessertWheel.height);
+      for(let i = 0; i < n; i++) {
+        const start = angle + i * 2 * Math.PI / n;
+        const end = angle + (i + 1) * 2 * Math.PI / n;
+        dessertCtx.beginPath();
+        dessertCtx.moveTo(size/2, size/2);
+        dessertCtx.arc(size/2, size/2, size/2-5, start, end);
+        dessertCtx.closePath();
+        dessertCtx.fillStyle = dessertColors[i % dessertColors.length];
+        dessertCtx.fill();
+        dessertCtx.strokeStyle = "#444";
+        dessertCtx.lineWidth = 3;
+        dessertCtx.stroke();
+        dessertCtx.save();
+        dessertCtx.translate(size/2, size/2);
+        dessertCtx.rotate(start + Math.PI / n);
+        dessertCtx.textAlign = "right";
+        dessertCtx.font = `${size/13}px Arial`;
+        dessertCtx.fillStyle = "#222";
+        dessertCtx.fillText(dessertOptions[i], size/2.3, 10);
+        dessertCtx.restore();
+      }
+    }
+    // Адаптивность обоих колёс
     function resize() {
       const w = Math.min(window.innerWidth, 420);
       wheel.width = w;
       wheel.height = w;
       drawWheel(currentAngle);
+      dessertWheel.width = w;
+      dessertWheel.height = w;
+      drawDessertWheel(currentDessertAngle);
     }
+    window.addEventListener("resize", resize);
 
-    let spinning = false, currentAngle = 0, targetAngle = 0;
-
-    // МОДАЛКА: показать картинку и название
-    function showResultWithImage(index) {
-      document.getElementById('result-popup').style.display = 'none';
-      const modal = document.getElementById('result-modal');
-      const img = document.getElementById('result-img');
-      const title = document.getElementById('result-title');
-      img.style.opacity = '0'; // убрать, если было видно до этого
-      img.src = images[index];
-      img.alt = options[index];
-      title.textContent = options[index];
-      modal.style.display = 'flex';
-      // Хитрость чтобы CSS-анимация сработала заново:
-      setTimeout(() => { img.style.opacity = '1'; }, 10);
-      // Клик по любой области — убрать модалку:
-      modal.onclick = function() { modal.style.display = 'none'; };
-      img.onclick = function(e) { modal.style.display = 'none'; e.stopPropagation(); };
-    }
-
-    // МУЗЫКА
+    // МУЗЫКА — всегда играет!
     function playMusic() {
       const music = document.getElementById('myMusic');
+      music.loop = true;
       if (music.paused) {
         music.currentTime = 0;
         music.play();
       }
     }
+    playMusic();
 
+    // Показать модальное окно с блюдом
+    function showResultWithImage(index) {
+      const modal = document.getElementById('result-modal');
+      const img = document.getElementById('result-img');
+      const title = document.getElementById('result-title');
+      img.style.opacity = '0';
+      img.src = images[index];
+      img.alt = options[index];
+      title.textContent = options[index];
+      modal.style.display = 'flex';
+      setTimeout(() => { img.style.opacity = '1'; }, 10);
+      modal.onclick = () => { modal.style.display = 'none'; showDessertWheel(index); };
+      img.onclick = e => { modal.style.display = 'none'; showDessertWheel(index); e.stopPropagation(); };
+    }
+    // Модалка десерта
+    function showDessertWithImage(index) {
+      const modal = document.getElementById('dessert-modal');
+      const img = document.getElementById('dessert-img');
+      const title = document.getElementById('dessert-title');
+      img.style.opacity = '0';
+      img.src = dessertImages[index];
+      img.alt = dessertOptions[index];
+      title.textContent = dessertOptions[index];
+      modal.style.display = 'flex';
+      setTimeout(() => { img.style.opacity = '1'; }, 10);
+      modal.onclick = () => { modal.style.display = 'none'; showFinalModal(mainChoiceIdx, index); };
+      img.onclick = e => { modal.style.display = 'none'; showFinalModal(mainChoiceIdx, index); e.stopPropagation(); };
+    }
+    // Финальное модальное окно
+    function showFinalModal(mainIdx, dessertIdx) {
+      const modal = document.getElementById('final-modal');
+      const title = document.getElementById('final-title');
+      const imgMain = document.getElementById('final-main-img');
+      const imgDessert = document.getElementById('final-dessert-img');
+      title.textContent = `Твой ужин: ${options[mainIdx]} и ${dessertOptions[dessertIdx]}`;
+      imgMain.src = images[mainIdx];
+      imgMain.alt = options[mainIdx];
+      imgDessert.src = dessertImages[dessertIdx];
+      imgDessert.alt = dessertOptions[dessertIdx];
+      modal.style.display = 'flex';
+      // Скрыть при нажатии на любую область
+      modal.onclick = () => { modal.style.display = 'none'; };
+      imgMain.onclick = e => { modal.style.display = 'none'; e.stopPropagation(); };
+      imgDessert.onclick = e => { modal.style.display = 'none'; e.stopPropagation(); };
+    }
+
+    // Вращение основного колеса
     function spin() {
       if (spinning) return;
-      playMusic(); // Запуск музыки при нажатии кнопки!
+      playMusic();
       spinning = true;
       const n = options.length;
       const selected = Math.floor(Math.random() * n);
-
-      // Крутая рулетка — много оборотов + мягкое замедление
       const sliceAngle = 2 * Math.PI / n;
-      const baseRotations = 6 + Math.random() * 2; // 6-8 оборотов
+      const baseRotations = 6 + Math.random() * 2;
       const finalAngle = 2 * Math.PI * baseRotations + (n - selected) * sliceAngle + (Math.random() - 0.5) * (sliceAngle * 0.6);
-
       const duration = 4000;
       const startAngle = currentAngle;
       const endAngle = currentAngle + finalAngle;
-
       let start = null;
       function animate(ts) {
         if (!start) start = ts;
         const elapsed = ts - start;
         let t = Math.min(elapsed / duration, 1);
-
-        // Ease-out экспонента (замедление)
         t = 1 - Math.pow(1-t, 3.5);
-
         currentAngle = startAngle + (endAngle - startAngle) * t;
         drawWheel(currentAngle);
-
         if (elapsed < duration) {
           requestAnimationFrame(animate);
         } else {
           currentAngle = endAngle % (2 * Math.PI);
           drawWheel(currentAngle);
-
-          // Стрелка снизу, смотрит вверх (по центру)
+          // вычисляем результат по стрелке!
           let pointerAngle = (Math.PI / 2 - currentAngle + 2 * Math.PI) % (2 * Math.PI);
           let landed = Math.floor(pointerAngle / sliceAngle) % n;
+          mainChoiceIdx = landed;
           showResultWithImage(landed);
-
           spinning = false;
         }
       }
       requestAnimationFrame(animate);
     }
 
-    window.addEventListener("resize", resize);
+    // Показать второе колесо
+    function showDessertWheel(mainIdx) {
+      document.getElementById('mainTitle').textContent = 'Десерт?';
+      document.getElementById('wheelContainer').style.display = 'none';
+      document.getElementById('spin').style.display = 'none';
+      document.getElementById('dessertWheelContainer').style.display = 'flex';
+      resize();
+    }
+
+    // Вращение второго (десертного) колеса
+    function spinDessert() {
+      if (dessertSpinning) return;
+      playMusic();
+      dessertSpinning = true;
+      const n = dessertOptions.length;
+      const selected = Math.floor(Math.random() * n);
+      const sliceAngle = 2 * Math.PI / n;
+      const baseRotations = 6 + Math.random() * 2;
+      const finalAngle = 2 * Math.PI * baseRotations + (n - selected) * sliceAngle + (Math.random() - 0.5) * (sliceAngle * 0.6);
+      const duration = 4000;
+      const startAngle = currentDessertAngle;
+      const endAngle = currentDessertAngle + finalAngle;
+      let start = null;
+      function animate(ts) {
+        if (!start) start = ts;
+        const elapsed = ts - start;
+        let t = Math.min(elapsed / duration, 1);
+        t = 1 - Math.pow(1-t, 3.5);
+        currentDessertAngle = startAngle + (endAngle - startAngle) * t;
+        drawDessertWheel(currentDessertAngle);
+        if (elapsed < duration) {
+          requestAnimationFrame(animate);
+        } else {
+          currentDessertAngle = endAngle % (2 * Math.PI);
+          drawDessertWheel(currentDessertAngle);
+          let pointerAngle = (Math.PI / 2 - currentDessertAngle + 2 * Math.PI) % (2 * Math.PI);
+          let landed = Math.floor(pointerAngle / sliceAngle) % n;
+          dessertChoiceIdx = landed;
+          showDessertWithImage(landed);
+          dessertSpinning = false;
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    // Привязки
     document.getElementById("spin").onclick = spin;
+    document.getElementById("spinDessert").onclick = spinDessert;
 
     resize();
   </script>
