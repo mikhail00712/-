@@ -252,31 +252,32 @@
     }
     // Рисуем колесо десертов
     function drawDessertWheel(angle = 0) {
-      const size = Math.min(dessertWheel.width, dessertWheel.height);
-      const n = dessertOptions.length;
-      dessertCtx.clearRect(0, 0, dessertWheel.width, dessertWheel.height);
-      for(let i = 0; i < n; i++) {
-        const start = angle + i * 2 * Math.PI / n;
-        const end = angle + (i + 1) * 2 * Math.PI / n;
-        dessertCtx.beginPath();
-        dessertCtx.moveTo(size/2, size/2);
-        dessertCtx.arc(size/2, size/2, size/2-5, start, end);
-        dessertCtx.closePath();
-        dessertCtx.fillStyle = dessertColors[i % dessertColors.length];
-        dessertCtx.fill();
-        dessertCtx.strokeStyle = "#444";
-        dessertCtx.lineWidth = 3;
-        dessertCtx.stroke();
-        dessertCtx.save();
-        dessertCtx.translate(size/2, size/2);
-        dessertCtx.rotate(start + Math.PI / n);
-        dessertCtx.textAlign = "right";
-        dessertCtx.font = `${size/13}px Arial`;
-        dessertCtx.fillStyle = "#222";
-        dessertCtx.fillText(dessertOptions[i], size/2.3, 10);
-        dessertCtx.restore();
-      }
-    }
+  const size = Math.min(dessertWheel.width, dessertWheel.height);
+  const n = dessertOptions.length;
+  dessertCtx.clearRect(0, 0, dessertWheel.width, dessertWheel.height);
+  for(let i = 0; i < n; i++) {
+    const start = angle + i * 2 * Math.PI / n;
+    const end = angle + (i + 1) * 2 * Math.PI / n;
+    dessertCtx.beginPath();
+    dessertCtx.moveTo(size/2, size/2);
+    dessertCtx.arc(size/2, size/2, size/2-5, start, end);
+    dessertCtx.closePath();
+    dessertCtx.fillStyle = dessertColors[i % dessertColors.length];
+    dessertCtx.fill();
+    dessertCtx.strokeStyle = "#444";
+    dessertCtx.lineWidth = 3;
+    dessertCtx.stroke();
+    // === ВОТ ЭТО РИСУЕТ ТЕКСТ ПО КРУГУ ===
+    dessertCtx.save();
+    dessertCtx.translate(size/2, size/2);
+    dessertCtx.rotate(start + Math.PI / n);
+    dessertCtx.textAlign = "right";
+    dessertCtx.font = `${size/13}px Arial`;
+    dessertCtx.fillStyle = "#222";
+    dessertCtx.fillText(dessertOptions[i], size/2.3, 10);
+    dessertCtx.restore();
+  }
+}
     // Адаптивность обоих колёс
     function resize() {
       const w = Math.min(window.innerWidth, 420);
