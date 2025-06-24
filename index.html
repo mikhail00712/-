@@ -42,18 +42,17 @@
       box-shadow: 0 2px 12px #0001;
       display: block;
       margin: 0 auto;
-    }
     #arrow {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%) rotate(0deg);
-      width: 0; height: 0;
-      border-left: 30px solid transparent;
-      border-right: 30px solid transparent;
-      border-top: 40px solid #ef3232;
-      bottom: -28px;
-      z-index: 3;
-    }
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) rotate(180deg);
+  width: 0; height: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-top: 40px solid #ef3232;
+  bottom: -28px;
+  z-index: 3;
+}
     button {
       margin-top: 6vh;
       font-size: 2.2rem;
@@ -135,31 +134,33 @@
     let spinning = false, currentAngle = 0, targetAngle = 0;
 
     function spin() {
-      if (spinning) return;
-      spinning = true;
-      const n = options.length;
-      const selected = Math.floor(Math.random() * n);
-      // Для анимации: 5 оборотов + на выбранный сегмент
-      const extra = Math.random() * (2 * Math.PI / n); // чтобы всегда чуть по-разному
-      targetAngle = currentAngle + 2 * Math.PI * 5 + (2 * Math.PI * (n - selected) / n) + extra;
-      let start = null;
-      function animate(ts) {
-        if (!start) start = ts;
-        const t = (ts - start) / 1200;
-        // ease out
-        const progress = 1 - Math.pow(1-t, 4);
-        currentAngle = currentAngle + (targetAngle - currentAngle) * progress;
-        drawWheel(currentAngle);
-        if (progress < 1) requestAnimationFrame(animate);
-        else {
-          currentAngle = targetAngle % (2*Math.PI);
-          drawWheel(currentAngle);
-          spinning = false;
-        }
-      }
-      requestAnimationFrame(animate);
+  if (spinning) return;
+  spinning = true;
+  const n = options.length;
+  const selected = Math.floor(Math.random() * n);
+  // Целимся, чтобы выбранный вариант оказался "внизу" (на стрелке)
+  // угол 0 (или 2π) — это самый низ (где стрелка)
+  const sliceAngle = 2 * Math.PI / n;
+  const targetSlice = (n - selected) * sliceAngle; // нужный сегмент внизу
+  const extra = Math.random() * (sliceAngle * 0.7); // чуть-чуть рандома, но не слишком
+  targetAngle = currentAngle + Math.PI * 4 + targetSlice + extra; // 2 оборота + на сегмент
+  let start = null;
+  function animate(ts) {
+    if (!start) start = ts;
+    const t = Math.min(1, (ts - start) / 1500);
+    // ease-out
+    const progress = 1 - Math.pow(1 - t, 3);
+    currentAngle = currentAngle + (targetAngle - currentAngle) * progress;
+    drawWheel(currentAngle);
+    if (t < 1) requestAnimationFrame(animate);
+    else {
+      currentAngle = targetAngle % (2*Math.PI);
+      drawWheel(currentAngle);
+      spinning = false;
     }
-
+  }
+  requestAnimationFrame(animate);
+}
     window.addEventListener("resize", resize);
     document.getElementById("spin").onclick = spin;
 
