@@ -42,17 +42,17 @@
       display: block;
       margin: 0 auto;
     }
-  #arrow {
-  position: absolute;
-  left: 50%;
-  bottom: -36px;
-  transform: translateX(-50%) rotate(180deg);
-  width: 0; height: 0;
-  border-left: 28px solid transparent;
-  border-right: 28px solid transparent;
-  border-top: 36px solid black;
-  z-index: 3;
-}
+    #arrow {
+      position: absolute;
+      left: 50%;
+      bottom: -36px;
+      transform: translateX(-50%) rotate(180deg);
+      width: 0; height: 0;
+      border-left: 28px solid transparent;
+      border-right: 28px solid transparent;
+      border-top: 36px solid black;
+      z-index: 3;
+    }
     button {
       margin-top: 6vh;
       font-size: 2.2rem;
@@ -109,8 +109,7 @@
   </div>
   <button id="spin">КРУТИТЬ</button>
   <div id="result-popup"></div>
-  <!-- МУЗЫКА: -->
-  <audio id="myMusic" src="music.mp3"></audio>
+  <audio id="player" src="MusicMP3.mp3"></audio>
   <script>
     // Список вариантов
     const options = [
@@ -119,6 +118,7 @@
     const colors = ["#ffecec", "#e6f6ff", "#eaffea", "#f5eaff", "#fffada"];
     const wheel = document.getElementById("wheel");
     const ctx = wheel.getContext("2d");
+    const audio = document.getElementById("player");
 
     function drawWheel(angle = 0) {
       const size = Math.min(wheel.width, wheel.height);
@@ -166,18 +166,8 @@
       setTimeout(() => { popup.style.display = 'none'; }, 1850);
     }
 
-    // МУЗЫКА
-    function playMusic() {
-      const music = document.getElementById('myMusic');
-      if (music.paused) {
-        music.currentTime = 0;
-        music.play();
-      }
-    }
-
     function spin() {
       if (spinning) return;
-      playMusic(); // Запуск музыки при нажатии кнопки!
       spinning = true;
       const n = options.length;
       const selected = Math.floor(Math.random() * n);
@@ -190,6 +180,10 @@
       const duration = 4000;
       const startAngle = currentAngle;
       const endAngle = currentAngle + finalAngle;
+
+      // Запуск музыки (сброс в начало)
+      audio.currentTime = 0;
+      audio.play();
 
       let start = null;
       function animate(ts) {
@@ -209,8 +203,10 @@
           currentAngle = endAngle % (2 * Math.PI);
           drawWheel(currentAngle);
 
-          // ВЫВОД результата!
-          const landed = (n - Math.floor((currentAngle % (2 * Math.PI)) / sliceAngle)) % n;
+          // Исправленный расчет сектора (строго по направлению стрелки вниз)
+          // Учитываем, что "0" у канваса — это вправо, а у нас стрелка снизу (на π/2)
+          let pointerAngle = (3 * Math.PI / 2 - currentAngle + 2*Math.PI) % (2*Math.PI);
+          let landed = Math.floor(pointerAngle / sliceAngle) % n;
           showResult(options[landed]);
 
           spinning = false;
