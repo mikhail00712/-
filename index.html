@@ -7,6 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon.png">
   <meta name="theme-color" content="#f5f5f5">
+  <!-- Для webapp на iPhone -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <style>
@@ -30,6 +31,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      height: auto;
     }
     #wheel {
       width: 92vw;
@@ -46,16 +48,18 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%) rotate(0deg);
-      width: 0; height: 0;
+      width: 0;
+      height: 0;
       border-left: 26px solid transparent;
       border-right: 26px solid transparent;
+      border-top: 0 solid transparent;
       border-bottom: 34px solid #ef3232;
-      top: -22px;
+      top: auto;
+      bottom: -32px;
       z-index: 3;
     }
     button {
-      margin: 6vh auto 0 auto;
-      display: block;
+      margin-top: 6vh;
       font-size: 2.2rem;
       padding: 1rem 2.5rem;
       border: none;
@@ -72,7 +76,12 @@
     @media (max-width: 500px) {
       h1 { font-size: 1.5rem; }
       button { font-size: 1rem; }
-      #arrow { border-left: 13px solid transparent; border-right: 13px solid transparent; border-bottom: 18px solid #ef3232; top: -8px;}
+      #arrow {
+        border-left: 13px solid transparent;
+        border-right: 13px solid transparent;
+        border-bottom: 18px solid #ef3232;
+        bottom: -16px;
+      }
     }
   </style>
 </head>
@@ -139,23 +148,30 @@
       const n = options.length;
       const selected = Math.floor(Math.random() * n);
 
-      // Больше оборотов — ощущение "рулетки"
-      const spinRounds = 5 + Math.random() * 3; // 5-8 оборотов
+      // --- Крутая рулеточная анимация ---
+      // Много оборотов, замедление по синусу, финал попадает на нужный сектор
       const sliceAngle = 2 * Math.PI / n;
-      const targetSlice = (n - selected) * sliceAngle;
-      const extra = Math.random() * (sliceAngle * 0.7);
-      targetAngle = currentAngle + Math.PI * 2 * spinRounds + targetSlice + extra;
-
+      const randomExtra = Math.random() * sliceAngle * 0.8;
+      const minSpins = 5; // оборотов
+      const finalAngle = (n - selected) * sliceAngle + randomExtra; // нужный сектор внизу (под стрелкой)
+      targetAngle = currentAngle + 2 * Math.PI * minSpins + finalAngle;
       let start = null;
+      let duration = 3000 + Math.random()*500; // 3-3.5 секунды
+
       function animate(ts) {
         if (!start) start = ts;
-        const t = Math.min(1, (ts - start) / 1800);
-        // Естественное торможение (ease-out)
-        const progress = 1 - Math.pow(1 - t, 4);
-        currentAngle = currentAngle + (targetAngle - currentAngle) * progress;
+        let elapsed = ts - start;
+        let t = Math.min(1, elapsed / duration);
+
+        // Замедление: easeOutQuart, красиво, затяжно
+        let ease = 1 - Math.pow(1-t, 4);
+
+        currentAngle = currentAngle + (targetAngle - currentAngle) * ease;
         drawWheel(currentAngle);
-        if (t < 1) requestAnimationFrame(animate);
-        else {
+
+        if (t < 1) {
+          requestAnimationFrame(animate);
+        } else {
           currentAngle = targetAngle % (2*Math.PI);
           drawWheel(currentAngle);
           spinning = false;
@@ -166,6 +182,7 @@
 
     window.addEventListener("resize", resize);
     document.getElementById("spin").onclick = spin;
+
     resize();
   </script>
 </body>
