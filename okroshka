@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Окрошка рулетка</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    #container {
+      position: relative;
+      width: 360px;
+      height: 360px;
+    }
+
+    #wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 10px solid #444;
+      overflow: hidden;
+      position: relative;
+      transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    .slice {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      left: 50%;
+      top: 50%;
+      transform-origin: 0% 0%;
+      clip-path: polygon(0% 0%, 100% 0%, 100% 100%);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding-left: 10px;
+    }
+
+    .slice span {
+      font-size: 16px;
+      font-weight: bold;
+      color: #222;
+      transform: rotate(calc(90deg - 15deg)); /* Повернём текст горизонтально */
+      transform-origin: left center;
+    }
+
+    #pointer {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
+      position: absolute;
+      top: -35px;
+      left: 50%;
+      transform: translateX(-50%) rotate(180deg); /* стрелка вверх */
+      z-index: 10;
+    }
+
+    #spinBtn {
+      margin-top: 40px;
+      font-size: 18px;
+      padding: 12px 40px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Что поесть сегодня?</h2>
+  <div id="container">
+    <div id="wheel"></div>
+    <div id="pointer"></div>
+  </div>
+  <button id="spinBtn">КРУТИТЬ</button>
+
+  <script>
+    const options = Array(12).fill('Окрошка');
+    const wheel = document.getElementById('wheel');
+    const sliceDeg = 360 / options.length;
+
+    options.forEach((text, i) => {
+      const slice = document.createElement('div');
+      slice.className = 'slice';
+      slice.style.transform = `rotate(${i * sliceDeg}deg) skewY(${90 - sliceDeg}deg)`;
+      slice.style.background = i % 2 === 0 ? '#ffe' : '#ddf';
+
+      const label = document.createElement('span');
+      label.textContent = text;
+
+      slice.appendChild(label);
+      wheel.appendChild(slice);
+    });
+
+    document.getElementById('spinBtn').onclick = () => {
+      const deg = 3600 + Math.floor(Math.random() * 360);
+      wheel.style.transform = `rotate(${deg}deg)`;
+    };
+  </script>
+</body>
+</html>
