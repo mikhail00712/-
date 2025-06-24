@@ -1,0 +1,6 @@
+{
+  "name": "Что поесть сегодня?",
+  "short_name": "Еда",
+  "start_url": ".",
+  "display": "standalone"
+}
