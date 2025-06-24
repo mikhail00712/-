@@ -7,7 +7,6 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon.png">
   <meta name="theme-color" content="#f5f5f5">
-  <!-- Для webapp на iPhone -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <style>
@@ -42,19 +41,21 @@
       box-shadow: 0 2px 12px #0001;
       display: block;
       margin: 0 auto;
+    }
     #arrow {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%) rotate(180deg);
-  width: 0; height: 0;
-  border-left: 30px solid transparent;
-  border-right: 30px solid transparent;
-  border-top: 40px solid #ef3232;
-  bottom: -28px;
-  z-index: 3;
-}
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%) rotate(0deg);
+      width: 0; height: 0;
+      border-left: 26px solid transparent;
+      border-right: 26px solid transparent;
+      border-bottom: 34px solid #ef3232;
+      top: -22px;
+      z-index: 3;
+    }
     button {
-      margin-top: 6vh;
+      margin: 6vh auto 0 auto;
+      display: block;
       font-size: 2.2rem;
       padding: 1rem 2.5rem;
       border: none;
@@ -71,7 +72,7 @@
     @media (max-width: 500px) {
       h1 { font-size: 1.5rem; }
       button { font-size: 1rem; }
-      #arrow { border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 22px solid #ef3232; bottom: -12px;}
+      #arrow { border-left: 13px solid transparent; border-right: 13px solid transparent; border-bottom: 18px solid #ef3232; top: -8px;}
     }
   </style>
 </head>
@@ -91,7 +92,6 @@
 
     const wheel = document.getElementById("wheel");
     const ctx = wheel.getContext("2d");
-    const wheelContainer = document.getElementById("wheelContainer");
 
     function drawWheel(angle = 0) {
       const size = Math.min(wheel.width, wheel.height);
@@ -134,39 +134,38 @@
     let spinning = false, currentAngle = 0, targetAngle = 0;
 
     function spin() {
-  if (spinning) return;
-  spinning = true;
-  const n = options.length;
-  const selected = Math.floor(Math.random() * n);
-  // Целимся, чтобы выбранный вариант оказался "внизу" (на стрелке)
-  // угол 0 (или 2π) — это самый низ (где стрелка)
-  const sliceAngle = 2 * Math.PI / n;
-  const targetSlice = (n - selected) * sliceAngle; // нужный сегмент внизу
-  const extra = Math.random() * (sliceAngle * 0.7); // чуть-чуть рандома, но не слишком
-  targetAngle = currentAngle + Math.PI * 4 + targetSlice + extra; // 2 оборота + на сегмент
-  let start = null;
-  function animate(ts) {
-    if (!start) start = ts;
-    const t = Math.min(1, (ts - start) / 1500);
-    // ease-out
-    const progress = 1 - Math.pow(1 - t, 3);
-    currentAngle = currentAngle + (targetAngle - currentAngle) * progress;
-    drawWheel(currentAngle);
-    if (t < 1) requestAnimationFrame(animate);
-    else {
-      currentAngle = targetAngle % (2*Math.PI);
-      drawWheel(currentAngle);
-      spinning = false;
+      if (spinning) return;
+      spinning = true;
+      const n = options.length;
+      const selected = Math.floor(Math.random() * n);
+
+      // Больше оборотов — ощущение "рулетки"
+      const spinRounds = 5 + Math.random() * 3; // 5-8 оборотов
+      const sliceAngle = 2 * Math.PI / n;
+      const targetSlice = (n - selected) * sliceAngle;
+      const extra = Math.random() * (sliceAngle * 0.7);
+      targetAngle = currentAngle + Math.PI * 2 * spinRounds + targetSlice + extra;
+
+      let start = null;
+      function animate(ts) {
+        if (!start) start = ts;
+        const t = Math.min(1, (ts - start) / 1800);
+        // Естественное торможение (ease-out)
+        const progress = 1 - Math.pow(1 - t, 4);
+        currentAngle = currentAngle + (targetAngle - currentAngle) * progress;
+        drawWheel(currentAngle);
+        if (t < 1) requestAnimationFrame(animate);
+        else {
+          currentAngle = targetAngle % (2*Math.PI);
+          drawWheel(currentAngle);
+          spinning = false;
+        }
+      }
+      requestAnimationFrame(animate);
     }
-  }
-  requestAnimationFrame(animate);
-}
+
     window.addEventListener("resize", resize);
     document.getElementById("spin").onclick = spin;
-
-    // Стрелка: ничего не нужно анимировать, она всегда снизу, смотрит вверх!
-    // Размер колеса адаптивный.
-
     resize();
   </script>
 </body>
