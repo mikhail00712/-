@@ -45,12 +45,12 @@
     #arrow {
       position: absolute;
       left: 50%;
-      top: -34px;
-      transform: translateX(-50%);
+      bottom: -36px;
+      transform: translateX(-50%) rotate(0deg);
       width: 0; height: 0;
       border-left: 28px solid transparent;
       border-right: 28px solid transparent;
-      border-bottom: 36px solid #ef3232;
+      border-top: 36px solid #ef3232;
       z-index: 3;
     }
     button {
@@ -74,8 +74,8 @@
       #arrow {
         border-left: 14px solid transparent;
         border-right: 14px solid transparent;
-        border-bottom: 18px solid #ef3232;
-        top: -16px;
+        border-top: 18px solid #ef3232;
+        bottom: -18px;
       }
     }
   </style>
@@ -137,14 +137,14 @@
 
     let spinning = false, currentAngle = 0, targetAngle = 0;
 
-    // --- Новая анимация: крутится как рулетка ---
+    // --- Анимация "рулетка" ---
     function spin() {
       if (spinning) return;
       spinning = true;
       const n = options.length;
       const selected = Math.floor(Math.random() * n);
 
-      // Настраиваем "длительность" и "кол-во оборотов" чтобы выглядело естественно
+      // Настраиваем "длительность" и "кол-во оборотов"
       const sliceAngle = 2 * Math.PI / n;
       const baseRotations = 6 + Math.random() * 2; // 6-8 оборотов
       const finalAngle = 2 * Math.PI * baseRotations + (n - selected) * sliceAngle + (Math.random() - 0.5) * (sliceAngle * 0.6);
@@ -154,14 +154,14 @@
       const startAngle = currentAngle;
       const endAngle = currentAngle + finalAngle;
 
-      // Имитируем замедление по экспоненте
+      // Замедление по экспоненте
       let start = null;
       function animate(ts) {
         if (!start) start = ts;
         const elapsed = ts - start;
         let t = Math.min(elapsed / duration, 1);
 
-        // Ease-out экспонента (замедление в конце)
+        // Ease-out экспонента (замедление)
         t = 1 - Math.pow(1-t, 3.5);
 
         currentAngle = startAngle + (endAngle - startAngle) * t;
@@ -170,7 +170,6 @@
         if (elapsed < duration) {
           requestAnimationFrame(animate);
         } else {
-          // Строго фиксируем на выбранный сегмент!
           currentAngle = endAngle % (2 * Math.PI);
           drawWheel(currentAngle);
           spinning = false;
