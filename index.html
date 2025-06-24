@@ -43,16 +43,16 @@
       margin: 0 auto;
     }
     #arrow {
-      position: absolute;
-      left: 50%;
-      bottom: -36px;
-      transform: translateX(-50%) rotate(180deg); /* Вверх! */
-      width: 0; height: 0;
-      border-left: 28px solid transparent;
-      border-right: 28px solid transparent;
-      border-bottom: 36px solid black; /* Черная стрелка, border-bottom! */
-      border-top: none;
-      z-index: 3;
+  position: absolute;
+  left: 50%;
+  bottom: -36px;
+  transform: translateX(-50%) rotate(0deg); /* 0deg — теперь смотрит ВВЕРХ */
+  width: 0; height: 0;
+  border-left: 28px solid transparent;
+  border-right: 28px solid transparent;
+  border-bottom: none;
+  border-top: 36px solid black; /* Чёрная стрелка вверх */
+  z-index: 3;
     }
     button {
       margin-top: 6vh;
