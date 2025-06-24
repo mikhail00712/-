@@ -7,6 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon.png">
   <meta name="theme-color" content="#f5f5f5">
+  <!-- Для webapp на iPhone -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <style>
@@ -43,16 +44,17 @@
       margin: 0 auto;
     }
     #arrow {
-  position: absolute;
-  left: 50%;
-  bottom: -36px;
-  transform: translateX(-50%);
-  width: 0; height: 0;
-  border-left: 28px solid transparent;
-  border-right: 28px solid transparent;
-  border-top: 36px solid black; /* Только ВВЕРХУ! */
-  z-index: 3;
-}
+      position: absolute;
+      left: 50%;
+      bottom: -36px;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 28px solid transparent;
+      border-right: 28px solid transparent;
+      border-top: 36px solid black;
+      /* убери любые border-bottom, только border-top! */
+      z-index: 3;
+    }
     button {
       margin-top: 6vh;
       font-size: 2.2rem;
@@ -68,36 +70,10 @@
       transition: background 0.2s;
     }
     button:active { background: #444; }
-    #result-popup {
-      display: none;
-      position: fixed;
-      left: 50%; top: 50%;
-      transform: translate(-50%, -50%);
-      background: #222;
-      color: #fff;
-      padding: 2rem 2.5rem;
-      border-radius: 22px;
-      font-size: 2.2rem;
-      font-weight: bold;
-      box-shadow: 0 8px 32px #0006;
-      z-index: 100;
-      opacity: 0.98;
-      animation: popup-in 0.24s cubic-bezier(.5,2,.1,1) forwards;
-    }
-    @keyframes popup-in {
-      from { opacity: 0; transform: translate(-50%, -60%) scale(0.9);}
-      to   { opacity: 0.98; transform: translate(-50%, -50%) scale(1);}
-    }
     @media (max-width: 500px) {
       h1 { font-size: 1.5rem; }
       button { font-size: 1rem; }
-      #arrow {
-        border-left: 14px solid transparent;
-        border-right: 14px solid transparent;
-        border-bottom: 18px solid black;
-        bottom: -18px;
-      }
-      #result-popup { font-size: 1.2rem; padding: 1.2rem 1.1rem;}
+      #arrow { border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 22px solid black; bottom: -12px;}
     }
   </style>
 </head>
@@ -108,15 +84,16 @@
     <div id="arrow"></div>
   </div>
   <button id="spin">КРУТИТЬ</button>
-  <div id="result-popup"></div>
   <script>
     // Список вариантов
     const options = [
       "Окрошка", "Роллы", "Хинкали", "Тайская", "Мак"
     ];
     const colors = ["#ffecec", "#e6f6ff", "#eaffea", "#f5eaff", "#fffada"];
+
     const wheel = document.getElementById("wheel");
     const ctx = wheel.getContext("2d");
+    const wheelContainer = document.getElementById("wheelContainer");
 
     function drawWheel(angle = 0) {
       const size = Math.min(wheel.width, wheel.height);
@@ -148,6 +125,7 @@
       }
     }
 
+    // Адаптивность
     function resize() {
       const w = Math.min(window.innerWidth, 420);
       wheel.width = w;
@@ -157,59 +135,58 @@
 
     let spinning = false, currentAngle = 0, targetAngle = 0;
 
-    function showResult(text) {
-      const popup = document.getElementById('result-popup');
-      popup.textContent = text;
-      popup.style.display = 'block';
-      setTimeout(() => { popup.style.display = 'none'; }, 1850);
-    }
-
     function spin() {
       if (spinning) return;
       spinning = true;
       const n = options.length;
       const selected = Math.floor(Math.random() * n);
-
-      // Крутая рулетка — много оборотов + мягкое замедление
+      // Крутая рулетка: быстро, долго, замедление
       const sliceAngle = 2 * Math.PI / n;
-      const baseRotations = 6 + Math.random() * 2; // 6-8 оборотов
-      const finalAngle = 2 * Math.PI * baseRotations + (n - selected) * sliceAngle + (Math.random() - 0.5) * (sliceAngle * 0.6);
-
-      const duration = 4000;
-      const startAngle = currentAngle;
-      const endAngle = currentAngle + finalAngle;
-
+      const targetSlice = (n - selected) * sliceAngle;
+      const extra = Math.random() * (sliceAngle * 0.7);
+      targetAngle = currentAngle + Math.PI * 7 + targetSlice + extra; // 3.5 оборота
       let start = null;
       function animate(ts) {
         if (!start) start = ts;
-        const elapsed = ts - start;
-        let t = Math.min(elapsed / duration, 1);
-
-        // Ease-out экспонента (замедление)
-        t = 1 - Math.pow(1-t, 3.5);
-
-        currentAngle = startAngle + (endAngle - startAngle) * t;
+        const duration = 2800; // чуть дольше (мс)
+        const t = Math.min(1, (ts - start) / duration);
+        // EaseOutExpo
+        const progress = 1 - Math.pow(2, -8 * t);
+        currentAngle = currentAngle + (targetAngle - currentAngle) * progress;
         drawWheel(currentAngle);
-
-        if (elapsed < duration) {
-          requestAnimationFrame(animate);
-        } else {
-          currentAngle = endAngle % (2 * Math.PI);
+        if (t < 1) requestAnimationFrame(animate);
+        else {
+          currentAngle = targetAngle % (2*Math.PI);
           drawWheel(currentAngle);
-
-          // ВЫВОД результата!
-          const landed = (n - Math.floor((currentAngle % (2 * Math.PI)) / sliceAngle)) % n;
-          showResult(options[landed]);
-
           spinning = false;
+          // Показываем уведомление после остановки
+          showResult(options[selected]);
         }
       }
       requestAnimationFrame(animate);
     }
 
+    function showResult(text) {
+      const d = document.createElement('div');
+      d.textContent = `Сегодня: ${text}!`;
+      d.style.position = "fixed";
+      d.style.left = "50%";
+      d.style.top = "40%";
+      d.style.transform = "translate(-50%,-50%)";
+      d.style.background = "#fff";
+      d.style.padding = "2rem 2.5rem";
+      d.style.fontSize = "2rem";
+      d.style.color = "#222";
+      d.style.borderRadius = "18px";
+      d.style.boxShadow = "0 6px 24px #0003";
+      d.style.fontWeight = "bold";
+      d.style.zIndex = 99;
+      document.body.appendChild(d);
+      setTimeout(() => d.remove(), 1700);
+    }
+
     window.addEventListener("resize", resize);
     document.getElementById("spin").onclick = spin;
-
     resize();
   </script>
 </body>
