@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <title>Что поесть сегодня?</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PWA / WebApp для iPhone и Android -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#f5f5f5">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+
   <style>
     body {
       background: #f5f5f5;
@@ -43,8 +51,8 @@
     #arrow {
       position: absolute;
       left: 50%;
-      bottom: -35px;
-      transform: translateX(-50%) rotate(180deg);
+      top: -36px;
+      transform: translateX(-50%) rotate(0deg);
       width: 0;
       height: 0;
       border-left: 22px solid transparent;
