@@ -84,10 +84,60 @@
       opacity: 0.98;
       animation: popup-in 0.24s cubic-bezier(.5,2,.1,1) forwards;
     }
-    @keyframes popup-in {
-      from { opacity: 0; transform: translate(-50%, -60%) scale(0.9);}
-      to   { opacity: 0.98; transform: translate(-50%, -50%) scale(1);}
+    /* Модальное окно с картинкой */
+    #result-modal {
+      display: none;
+      position: fixed;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.93);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      animation: popup-in 0.28s cubic-bezier(.4,1.6,.1,1) forwards;
     }
+    #result-modal-inner {
+      width: 100vw; height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    #result-img {
+      max-width: 96vw;
+      max-height: 70vh;
+      border-radius: 22px;
+      box-shadow: 0 6px 38px #000b;
+      background: #fff;
+      display: block;
+      margin: 0 auto;
+      transform: scale(0.92) rotate(-10deg);
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(.7,1.6,.2,1.01);
+      animation: img-in 0.44s cubic-bezier(.2,1.7,.2,1.01) forwards;
+    }
+    @keyframes popup-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes img-in {
+      from { opacity: 0; transform: scale(0.89) rotate(-18deg);}
+      to   { opacity: 1; transform: scale(1) rotate(0);}
+    }
+    #result-title {
+      color: #fff;
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-top: 2.2vh;
+      text-shadow: 0 2px 20px #000c;
+      letter-spacing: 2px;
+      background:rgba(40,40,40,.34);
+      border-radius: 12px;
+      padding: 0.4em 1.1em;
+      max-width: 90vw;
+      overflow: hidden;
+    }
+    #result-modal:active, #result-img:active { cursor: pointer; }
     @media (max-width: 500px) {
       h1 { font-size: 1.5rem; }
       button { font-size: 1rem; }
@@ -97,7 +147,8 @@
         border-top: 18px solid black;
         bottom: -18px;
       }
-      #result-popup { font-size: 1.2rem; padding: 1.2rem 1.1rem;}
+      #result-title { font-size: 1.1rem; }
+      #result-img { max-width: 99vw; max-height: 55vw;}
     }
   </style>
 </head>
@@ -109,12 +160,26 @@
   </div>
   <button id="spin">КРУТИТЬ</button>
   <div id="result-popup"></div>
+  <!-- МОДАЛКА С ФОТО -->
+  <div id="result-modal">
+    <div id="result-modal-inner">
+      <img id="result-img" src="" alt="">
+      <div id="result-title"></div>
+    </div>
+  </div>
   <!-- МУЗЫКА: -->
   <audio id="myMusic" src="music.mp3"></audio>
   <script>
-    // Список вариантов
+    // Список вариантов и соответствующих файлов
     const options = [
       "Окрошка", "Роллы", "Хинкали", "Тайская", "Мак"
+    ];
+    const images = [
+      "okroshka.JPG", // "Окрошка"
+      "rolli.JPG",    // "Роллы"
+      "hinkali.JPG",  // "Хинкали"
+      "thailand .JPG",// "Тайская" (да, с пробелом в имени, у тебя так)
+      "mak.JPG"       // "Мак"
     ];
     const colors = ["#ffecec", "#e6f6ff", "#eaffea", "#f5eaff", "#fffada"];
     const wheel = document.getElementById("wheel");
@@ -159,11 +224,22 @@
 
     let spinning = false, currentAngle = 0, targetAngle = 0;
 
-    function showResult(text) {
-      const popup = document.getElementById('result-popup');
-      popup.textContent = text;
-      popup.style.display = 'block';
-      setTimeout(() => { popup.style.display = 'none'; }, 1850);
+    // МОДАЛКА: показать картинку и название
+    function showResultWithImage(index) {
+      document.getElementById('result-popup').style.display = 'none';
+      const modal = document.getElementById('result-modal');
+      const img = document.getElementById('result-img');
+      const title = document.getElementById('result-title');
+      img.style.opacity = '0'; // убрать, если было видно до этого
+      img.src = images[index];
+      img.alt = options[index];
+      title.textContent = options[index];
+      modal.style.display = 'flex';
+      // Хитрость чтобы CSS-анимация сработала заново:
+      setTimeout(() => { img.style.opacity = '1'; }, 10);
+      // Клик по любой области — убрать модалку:
+      modal.onclick = function() { modal.style.display = 'none'; };
+      img.onclick = function(e) { modal.style.display = 'none'; e.stopPropagation(); };
     }
 
     // МУЗЫКА
@@ -206,16 +282,16 @@
         if (elapsed < duration) {
           requestAnimationFrame(animate);
         } else {
-  currentAngle = endAngle % (2 * Math.PI);
-  drawWheel(currentAngle);
+          currentAngle = endAngle % (2 * Math.PI);
+          drawWheel(currentAngle);
 
-  // Стрелка снизу, смотрит вверх (точно по центру)
-  let pointerAngle = (Math.PI / 2 - currentAngle + 2 * Math.PI) % (2 * Math.PI);
-  let landed = Math.floor(pointerAngle / sliceAngle) % n;
-  showResult(options[landed]);
+          // Стрелка снизу, смотрит вверх (по центру)
+          let pointerAngle = (Math.PI / 2 - currentAngle + 2 * Math.PI) % (2 * Math.PI);
+          let landed = Math.floor(pointerAngle / sliceAngle) % n;
+          showResultWithImage(landed);
 
-  spinning = false;
-}
+          spinning = false;
+        }
       }
       requestAnimationFrame(animate);
     }
